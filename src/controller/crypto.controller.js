@@ -1,50 +1,75 @@
 const cryptoService = require('../services/crypto.service');
 
-const createCrypto = async (req, res) => {
+const createCrypto = async (req, res, next) => {
   try {
-    const newCrypto = await cryptoService.createCrypto(req.body);
+    const newCryptoInfo = req.body;
+    const newCrypto = await cryptoService.createCrypto(newCryptoInfo);
     res.json(newCrypto);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    next(error); // Pass the error to the next middleware (errorMiddleware)
   }
 };
 
-const getAllCryptos = async (req, res) => {
+// Get all cryptocurrencies
+const getAllCryptos = async (req, res, next) => {
   try {
     const cryptos = await cryptoService.getAllCryptos();
     res.json(cryptos);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    next(error);
   }
 };
 
-const getOneCrypto = async (req, res) => {
+// Get a specific cryptocurrency by ID
+const getOneCrypto = async (req, res, next) => {
   const { id } = req.params;
   try {
     const crypto = await cryptoService.getOneCrypto(id);
-    res.json(crypto);
+    if (!crypto) {
+      const notFoundError = new Error('Crypto not found');
+      notFoundError.name = 'NotFound'; // Set a custom name for identification in the error middleware
+      next(notFoundError);
+    } else {
+      res.json(crypto);
+    }
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    next(error);
   }
 };
 
-const updateCrypto = async (req, res) => {
+// Update a specific cryptocurrency by ID
+const updateCrypto = async (req, res, next) => {
   const { id } = req.params;
+  const updateData = req.body;
+
   try {
-    const updatedCrypto = await cryptoService.updateCrypto(id, req.body);
-    res.json(updatedCrypto);
+    const updatedCrypto = await cryptoService.updateCrypto(id, updateData);
+    if (!updatedCrypto) {
+      const notFoundError = new Error('Crypto not found');
+      notFoundError.name = 'NotFound'; // Set a custom name for identification in the error middleware
+      next(notFoundError);
+    } else {
+      res.json(updatedCrypto);
+    }
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    next(error);
   }
 };
 
-const deleteCrypto = async (req, res) => {
+// Delete a specific cryptocurrency by ID
+const deleteCrypto = async (req, res, next) => {
   const { id } = req.params;
   try {
     const deletedCrypto = await cryptoService.deleteCrypto(id);
-    res.json(deletedCrypto);
+    if (!deletedCrypto) {
+      const notFoundError = new Error('Crypto not found');
+      notFoundError.name = 'NotFound'; // Set a custom name for identification in the error middleware
+      next(notFoundError);
+    } else {
+      res.json(deletedCrypto);
+    }
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    next(error);
   }
 };
 
