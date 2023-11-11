@@ -1,25 +1,23 @@
-const { VALIDATION_ERROR } = require('../utils/constants');
-
-// error handler 
-// 404
-function handleNotFound(req, res, next) {
-    res.status(404).json({ error: 'Not Found' });
-}
-// 400
-function handleValidationError(err, req, res, next) {
-    if (err.name === VALIDATION_ERROR) {
-        res.status(400).json({ error: 'Validation Error', message: err.message });
-    }  else {
-        res.status(400).json({ error: 'Bad Request' });
+const errorMiddleware = (err, req, res, next) => {
+    let statusCode = 500;
+    let errorMessage = 'Internal Server Error';
+  
+    if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
+      statusCode = 400;
+      errorMessage = 'Invalid JSON';
+    } else if (err.name === 'ValidationError') {
+      statusCode = 400;
+      errorMessage = err.message;
+    } else if (err.name === 'CastError' && err.kind === 'ObjectId') {
+      statusCode = 400;
+      errorMessage = 'Bad Request';
+    }else if (err.name === 'NotFound') {
+      statusCode = 404;
+      errorMessage = 'Not Found Crypto';
     }
-}
-// 500
-function handleInternalServerError(err, req, res, next) {
-    res.status(500).json({ error: 'Internal Server Error' });
-}
-
-module.exports={
-    handleNotFound,
-    handleValidationError,
-    handleInternalServerError
-}
+  
+    res.status(statusCode).json({ error: errorMessage });
+  };
+  
+  module.exports = errorMiddleware;
+  

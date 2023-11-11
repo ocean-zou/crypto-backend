@@ -14,11 +14,11 @@ const {
 router.post('/', createCrypto);
 // Get a list of all cryptos: GET /api/cryptos
 router.get('/', getAllCryptos);
-// Get a specific crypto: GET /api/cryptos/:cryptoId
-router.get('/:cryptoId', getOneCrypto);
-// Update a crypto's details: PUT /api/cryptos/:cryptoId
-router.put('/:cryptoId', updateCrypto);
-// Delete a crypto: DELETE /api/cryptos/:cryptoId
-router.delete('/:cryptoId', deleteCrypto);
+// Get a specific crypto: GET /api/cryptos/:id
+router.get('/:id', getOneCrypto);
+// Update a crypto's details: PUT /api/cryptos/:id
+router.put('/:id', updateCrypto);
+// Delete a crypto: DELETE /api/cryptos/:id
+router.delete('/:id', deleteCrypto);
 
 module.exports = router;

@@ -13,5 +13,6 @@ module.exports = {
       'single'
     ],
     'no-console': 'off',
+    'no-useless-constructor':0,
   }
 }
