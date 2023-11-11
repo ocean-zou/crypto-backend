@@ -4,9 +4,9 @@ const createCrypto = async (req, res, next) => {
   try {
     const newCryptoInfo = req.body;
     const newCrypto = await cryptoService.createCrypto(newCryptoInfo);
-    res.json(newCrypto);
+    res.status(201).json(newCrypto);
   } catch (error) {
-    next(error); // Pass the error to the next middleware (errorMiddleware)
+    next(error);
   }
 };
 
@@ -14,7 +14,7 @@ const createCrypto = async (req, res, next) => {
 const getAllCryptos = async (req, res, next) => {
   try {
     const cryptos = await cryptoService.getAllCryptos();
-    res.json(cryptos);
+    res.status(200).json(cryptos);
   } catch (error) {
     next(error);
   }
@@ -27,10 +27,10 @@ const getOneCrypto = async (req, res, next) => {
     const crypto = await cryptoService.getOneCrypto(id);
     if (!crypto) {
       const notFoundError = new Error('Crypto not found');
-      notFoundError.name = 'NotFound'; // Set a custom name for identification in the error middleware
+      notFoundError.name = 'NotFound';
       next(notFoundError);
     } else {
-      res.json(crypto);
+      res.status(200).json(crypto);
     }
   } catch (error) {
     next(error);
@@ -46,10 +46,10 @@ const updateCrypto = async (req, res, next) => {
     const updatedCrypto = await cryptoService.updateCrypto(id, updateData);
     if (!updatedCrypto) {
       const notFoundError = new Error('Crypto not found');
-      notFoundError.name = 'NotFound'; // Set a custom name for identification in the error middleware
+      notFoundError.name = 'NotFound';
       next(notFoundError);
     } else {
-      res.json(updatedCrypto);
+      res.status(200).json(updatedCrypto);
     }
   } catch (error) {
     next(error);
@@ -66,7 +66,7 @@ const deleteCrypto = async (req, res, next) => {
       notFoundError.name = 'NotFound'; // Set a custom name for identification in the error middleware
       next(notFoundError);
     } else {
-      res.json(deletedCrypto);
+      res.status(204).json(deletedCrypto);
     }
   } catch (error) {
     next(error);

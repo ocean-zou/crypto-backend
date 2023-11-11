@@ -6,10 +6,9 @@ const {
   getOneCrypto,
   getAllCryptos,
   createCrypto,
-} = require('../controller/crypto.controller');
+} = require('../controllers/crypto.controller');
 
 // Crypto Routes:
-
 // Create a new crypto: POST /api/cryptos
 router.post('/', createCrypto);
 // Get a list of all cryptos: GET /api/cryptos

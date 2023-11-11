@@ -1,5 +1,5 @@
 const mongoose = require('mongoose')
-const logger=require('pino')()
+const logger = require('pino')();
 const connectDB = async (URI) => {
   if (!URI) {
     throw new Error('Please provide a valid URI')
@@ -11,7 +11,12 @@ const connectDB = async (URI) => {
     'connected', () => logger.info('✅Connected to MongoDB✅')
   )
   db.on('disconnected', () => logger.info('❌Disconnected from MongoDB❌'))
-  return mongoose.connect(URI)
+  try {
+    await mongoose.connect(URI);
+  } catch (error) {
+    logger.info(error);
+    throw error; // Throw the error instead of calling process.exit
+  }
 }
 
 const db = async (URI) => {
@@ -19,7 +24,7 @@ const db = async (URI) => {
     await connectDB(URI)
   } catch (error) {
     logger.info(error)
-    process.exit(1)
+    throw error;
   }
 }
 

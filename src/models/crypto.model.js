@@ -2,6 +2,10 @@ const mongoose = require('mongoose');
 const Joi = require('joi')
 // write cryptoSchema first
 const cryptoSchema = new mongoose.Schema({
+  SNo: {
+    type: String,
+    required: true,
+  },
   Name: {
     type: String,
     required: true,
@@ -41,6 +45,7 @@ const cryptoSchema = new mongoose.Schema({
 });
 //add joi validation to the crypto schema
 const cryptoValidationSchema=Joi.object({
+  SNo: Joi.string().required(),
   Name: Joi.string().required(),
   Symbol: Joi.string().required(),
   Date: Joi.date().required(),
