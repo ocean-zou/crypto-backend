@@ -1,4 +1,4 @@
-const { createCrypto, getAllCryptos, getOneCrypto, updateCrypto, deleteCrypto } = require('../services/crypto.service');
+const { createCrypto, getAllCryptos, getOneCrypto, updateCrypto, deleteCrypto, getCryptoByDateRange } = require('../services/crypto.service');
 const { Crypto } = require('../models/crypto.model');
 
 jest.mock('../models/crypto.model');
@@ -73,4 +73,50 @@ describe('Crypto Service', () => {
       expect(result).toEqual(mockDeletedCrypto);
     });
   });
+  describe('getCryptoByDateRange', () => {
+    it('should get crypto data for a valid date range', async () => {
+      const mockStartDate = '2022-01-01';
+      const mockEndDate = '2022-01-10';
+      const mockCryptoData = [{ name: 'Bitcoin', symbol: 'BTC' }, { name: 'Ethereum', symbol: 'ETH' }];
+
+      Crypto.find.mockResolvedValueOnce(mockCryptoData);
+
+      const result = await getCryptoByDateRange(mockStartDate, mockEndDate);
+
+      expect(Crypto.find).toHaveBeenCalledWith({
+        Date: {
+          $gte: new Date(mockStartDate),
+          $lte: new Date(mockEndDate),
+        },
+      });
+      expect(result).toEqual(mockCryptoData);
+    });
+
+    it('should handle no crypto data found for the specified date range', async () => {
+      const mockStartDate = '2022-01-01';
+      const mockEndDate = '2022-01-10';
+
+      Crypto.find.mockResolvedValueOnce([]);
+
+      const result = await getCryptoByDateRange(mockStartDate, mockEndDate);
+
+      expect(Crypto.find).toHaveBeenCalledWith({
+        Date: {
+          $gte: new Date(mockStartDate),
+          $lte: new Date(mockEndDate),
+        },
+      });
+      expect(result).toEqual([]);
+    });
+
+    it('should handle errors when getting crypto data for a date range', async () => {
+      const mockStartDate = '2022-01-01';
+      const mockEndDate = '2022-01-10';
+
+      Crypto.find.mockRejectedValueOnce(new Error('Failed to get crypto data'));
+
+      await expect(getCryptoByDateRange(mockStartDate, mockEndDate)).rejects.toThrow('Failed to get crypto data');
+    });
+  })
+
 });

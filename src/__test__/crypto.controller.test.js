@@ -162,5 +162,46 @@ describe('Crypto Controller', () => {
         expect(mockNext).toHaveBeenCalledWith(new Error('Failed to delete crypto'));
       });
     });
+    describe('GET /crypto/:startDate/:endDate', () => {
+      it('should return crypto data for a valid date range', async () => {
+        const mockCryptoData = [{ /* mock crypto data */ }];
+        cryptoService.getCryptoByDateRange.mockResolvedValueOnce(mockCryptoData);
+    
+        mockRequest.params = { startDate: '2020-10-04', endDate: '2020-10-06' };
+    
+        await cryptoController.getCryptoByDateRange(mockRequest, mockResponse, mockNext);
+    
+        expect(mockResponse.status).toHaveBeenCalledWith(200);
+        expect(mockResponse.json).toHaveBeenCalledWith(mockCryptoData);
+        expect(cryptoService.getCryptoByDateRange).toHaveBeenCalledTimes(1);
+        expect(cryptoService.getCryptoByDateRange).toHaveBeenCalledWith('2020-10-04', '2020-10-06');
+      });
+    
+      it('should handle errors when getting crypto data for a date range', async () => {
+        cryptoService.getCryptoByDateRange.mockRejectedValueOnce(new Error('Failed to get crypto data'));
+    
+        mockRequest.params = { startDate: '2020-10-06', endDate: '2020-10-04' };
+    
+        await cryptoController.getCryptoByDateRange(mockRequest, mockResponse, mockNext);
+    
+        expect(mockResponse.status).not.toHaveBeenCalled();
+        expect(mockResponse.json).not.toHaveBeenCalled();
+        expect(mockNext).toHaveBeenCalledWith(new Error('Failed to get crypto data'));
+      });
+    
+      it('should return a 404 error for an empty crypto data result', async () => {
+        cryptoService.getCryptoByDateRange.mockResolvedValueOnce([]);
+    
+        mockRequest.params = { startDate: '2020-10-04', endDate: '2020-10-06' };
+    
+        await cryptoService.getCryptoByDateRange(mockRequest, mockResponse, mockNext);
+    
+        expect(mockResponse.status).not.toHaveBeenCalledWith(404);
+        expect(mockResponse.json).not.toHaveBeenCalledWith({
+          error: 'No crypto data found for the specified date range',
+        });
+      });
+    });
+    
   });
 });
