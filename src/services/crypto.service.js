@@ -21,6 +21,22 @@ const updateCrypto = async (id, updateData) => {
 const deleteCrypto = async (id) => {
   return Crypto.findByIdAndDelete(id);
 };
+// Function to get all data for a specific date range
+const getCryptoByDateRange = async (startDate, endDate) => {
+  console.log('Query Date Range:', startDate, 'to', endDate);
+
+  const cryptos = await Crypto.find({
+    Date: {
+      $gte: new Date(startDate),
+      $lte: new Date(endDate),
+    },
+  });
+
+  console.log('Result:', cryptos);
+
+  return cryptos;
+};
+
 
 module.exports = {
   createCrypto,
@@ -28,4 +44,5 @@ module.exports = {
   getOneCrypto,
   updateCrypto,
   deleteCrypto,
+  getCryptoByDateRange,
 };

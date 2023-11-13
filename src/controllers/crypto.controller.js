@@ -23,6 +23,7 @@ const getAllCryptos = async (req, res, next) => {
 // Get a specific cryptocurrency by ID
 const getOneCrypto = async (req, res, next) => {
   const { id } = req.params;
+  console.log("id,",id);
   try {
     const crypto = await cryptoService.getOneCrypto(id);
     if (!crypto) {
@@ -73,10 +74,29 @@ const deleteCrypto = async (req, res, next) => {
   }
 };
 
+// Get cryptocurrencies by date
+const getCryptoByDateRange = async (req, res, next) => {
+  const { startDate, endDate } = req.params;
+  try {
+    // Assuming you have a service function to handle the date range query
+    const cryptos = await cryptoService.getCryptoByDateRange(startDate, endDate);
+
+    if (cryptos.length === 0) {
+      const notFoundError = new Error('No crypto data found for the specified date range');
+      notFoundError.name = 'NotFound'; // Set a custom name for identification in the error middleware
+      next(notFoundError);
+    } else {
+      res.status(200).json(cryptos);
+    }
+  } catch (error) {
+    next(error);
+  }
+};
 module.exports = {
   createCrypto,
   getAllCryptos,
   getOneCrypto,
   updateCrypto,
   deleteCrypto,
+  getCryptoByDateRange,
 };
