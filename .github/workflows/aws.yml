@@ -40,7 +40,9 @@ jobs:
 
     - name: Build, tag, and push image to Amazon ECR
       run: |
-        docker build -t ${{ steps.ecr-uri.outputs.ecr_repository_uri }}:${{ github.sha }} .
-        docker tag ${{ steps.ecr-uri.outputs.ecr_repository_uri }}:${{ github.sha }} ${{ steps.ecr-uri.outputs.ecr_repository_uri }}:latest
-        docker push ${{ steps.ecr-uri.outputs.ecr_repository_uri }}:${{ github.sha }}
-        docker push ${{ steps.ecr-uri.outputs.ecr_repository_uri }}:latest
+            IMAGE_URI=${{ steps.ecr-uri.outputs.ecr_repository_uri }}
+            docker build -t $IMAGE_URI:latest .
+            docker push $IMAGE_URI:latest
+    - name: Check for success and destroy if not
+      if: failure()
+      run: terraform destroy -auto-approve
