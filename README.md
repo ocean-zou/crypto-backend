@@ -1,70 +1,58 @@
-# Getting Started with Create React App
+# Crypto Backend with Dockerized Deployment
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This project is the backend for a crypto application, containerized with Docker for easy deployment. The CI/CD pipeline is set up using GitHub Actions, and resource provisioning is automated with Terraform.
 
-## Available Scripts
+The backend has been successfully deployed at [https://api.oceanzou.click](https://api.oceanzou.click), 
+and you can use [https://api.oceanzou.click/api/v1/health](https://api.oceanzou.click/api/v1/health) to check its status.
 
-In the project directory, you can run:
+## Project Structure
 
-### `npm start`
+- **src**: Contains the source code for the Node.js application.
+- **Dockerfile**: Specifies the instructions to build a Docker image for the application.
+- **.github/workflows**: GitHub Actions workflows for CI/CD.
+- **terraform**: Terraform configuration files for resource provisioning.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## CI/CD Workflow
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+The CI/CD workflow is defined in the GitHub Actions configuration file. It includes steps to lint the code, build the Docker image, and deploy the application.
 
-### `npm test`
+## Terraform Infrastructure
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+The `terraform` directory contains Terraform configuration files to provision AWS resources. This includes creating an ECS cluster, setting up a VPC, defining subnets, and configuring security groups.
 
-### `npm run build`
+## Deployment
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Dockerized Deployment
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+The backend is containerized using Docker. To build and run the Docker image locally, use the following commands:
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Local Development
 
-### `npm run eject`
+### Prerequisites
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+- Node.js and npm installed
+- Local MongoDB instance
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### Configure Environment
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+Create a .env file in the root directory with the following content:
+NODE_ENV=development
+PORT=3000
+MONGO_URI=<YourLocalMongoDBURI>
+API_PREFIX=/api
+<!-- Replace <YourLocalMongoDBURI> with the connection URI for your local MongoDB -->
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+### Run Locally
 
-## Learn More
+npm install
+npm start
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+The app will be accessible at http://localhost:3000.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
 
-### Code Splitting
+## Conclusion
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+Congratulations! You've successfully set up and deployed the Crypto Backend. For more details on available scripts, testing, and deployment optimizations, refer to the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started). If you have any questions or encounter issues, feel free to reach out to the project contributors.
 
-### Analyzing the Bundle Size
+Happy coding!
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
