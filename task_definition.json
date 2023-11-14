@@ -6,8 +6,8 @@
     ],
     "cpu": "1024",
     "memory": "3072",
-    "taskRoleArn": "arn:aws:iam::431159034216:role/ecsTaskExecutionRole",
-    "executionRoleArn": "arn:aws:iam::431159034216:role/ecsTaskExecutionRole",
+    "taskRoleArn": "arn:aws:iam::431159034216:role/ecs_execution_role",
+    "executionRoleArn": "arn:aws:iam::431159034216:role/ecs_execution_role",
     "containerDefinitions": [
       {
         "name": "crypto-backend-container",
