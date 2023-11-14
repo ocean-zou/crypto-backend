@@ -1,9 +1,8 @@
-name: Build, Deploy, and Push to AWS ECR
+name: Deploy to Amazon ECS
 
 on:
   push:
-    branches:
-      - master
+    branches: [ "master" ]
 
 env:
   AWS_REGION: us-east-1 
@@ -23,8 +22,8 @@ jobs:
     environment: production
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+    - name: Checkout
+      uses: actions/checkout@v3
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
@@ -54,12 +53,7 @@ jobs:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         IMAGE_TAG: latest
       run: |
-        docker build \
-          --build-arg PORT=${{ secrets.PORT }} \
-          --build-arg API_PREFIX=${{ secrets.API_PREFIX }} \
-          --build-arg MONGO_URI=${{ secrets.MONGO_URI }} \
-          --build-arg NODE_ENV=${{ secrets.NODE_ENV }} \
-          -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f ./Dockerfile .
+        docker build --build-arg API_PREFIX=${{ secrets.API_PREFIX }} --build-arg NODE_ENV=${{ secrets.NODE_ENV }} --build-arg PORT=${{ secrets.PORT }} --build-arg MONGO_URI=${{ secrets.MONGO_URI }} -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f ./Dockerfile .
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
         echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
@@ -77,7 +71,7 @@ jobs:
         task-definition: ${{ steps.task-def.outputs.task-definition }}
         service: ${{ env.ECS_SERVICE }}
         cluster: ${{ env.ECS_CLUSTER }}
-        # wait-for-service-stability: true
+        wait-for-service-stability: true
 
     # - name: Check for success and destroy if not
     #   if: failure()
