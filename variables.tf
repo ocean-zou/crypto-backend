@@ -5,7 +5,7 @@ variable "region"{
 variable "ecr_repository_name" {
     description="the name of the ECR repository."
     type=string
-    default="crypto_backend"
+    default="crypto_backend_api_1"
 }
 variable "ecr_image_name" {
   description = "The name of the Docker image to push to the ECR repository."
@@ -49,7 +49,7 @@ variable "execution_role_arn" {
 }
 
 variable "container_name" {
-  default     = "crypto_backend-container"
+  default     = "crypto-backend-container"
   description = "Name of container to create task definition with."
   type        = string
 }

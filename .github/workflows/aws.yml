@@ -12,9 +12,15 @@ env:
   ECS_CLUSTER:  crypto-backend-ecs-cluster             
   ECS_TASK_DEFINITION: ./task_definition.json
   CONTAINER_NAME: crypto_backend-container
+
+  permissions:
+  contents: read
+  
 jobs:
   build_and_push:  
+        name: Deploy
     runs-on: ubuntu-latest
+    environment: production
 
     steps:
     - name: Checkout code
@@ -28,15 +34,15 @@ jobs:
         aws-region: ${{ env.AWS_REGION }}
 
     # Add Terraform steps to create ECR repository
-    - name: Initialize Terraform
-      run: terraform init
+    # - name: Initialize Terraform
+    #   run: terraform init
 
-    - name: Apply Terraform
-      run: terraform apply -auto-approve
+    # - name: Apply Terraform
+    #   run: terraform apply -auto-approve
 
-    - name: Get ECR Repository URI
-      id: ecr-uri
-      run: echo "::set-output name=ecr_repository_uri::$(terraform output ecr_repository_uri)"
+    # - name: Get ECR Repository URI
+    #   id: ecr-uri
+    #   run: echo "::set-output name=ecr_repository_uri::$(terraform output ecr_repository_uri)"
 
     - name: Login to Amazon ECR
       id: login-ecr
@@ -71,6 +77,6 @@ jobs:
         cluster: ${{ env.ECS_CLUSTER }}
         wait-for-service-stability: true
 
-    - name: Check for success and destroy if not
-      if: failure()
-      run: terraform destroy -auto-approve
+    # - name: Check for success and destroy if not
+    #   if: failure()
+    #   run: terraform destroy -auto-approve

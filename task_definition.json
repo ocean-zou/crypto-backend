@@ -10,11 +10,11 @@
     "executionRoleArn": "arn:aws:iam::431159034216:role/ecsTaskExecutionRole",
     "containerDefinitions": [
       {
-        "name": "crypto_backend-container",
+        "name": "crypto-backend-container",
         "image": "431159034216.dkr.ecr.us-east-1.amazonaws.com/crypto_backend_api_1:latest", 
         "portMappings": [
           {
-            "name": "cryptobackendecr-8000-tcp",
+            "name": "crypto-backend-container-8000-tcp",
             "containerPort": 8000,
             "hostPort": 8000,
             "protocol": "tcp",
