@@ -7,7 +7,10 @@ on:
 
 env:
   AWS_REGION: us-east-1 
-
+  ECR_REPOSITORY: crypto_backend         
+  ECS_SERVICE: crypto-backend-ecs-service         
+  ECS_CLUSTER:  crypto-backend-ecs-cluster             
+  ECS_TASK_DEFINITION: ./task_definition.json
 jobs:
   build_and_push:  
     runs-on: ubuntu-latest
