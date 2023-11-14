@@ -1,35 +1,35 @@
 {
-  "family": "job-post-ecs-task",
-  "networkMode": "awsvpc",
-  "requiresCompatibilities": [
-    "FARGATE"
-  ],
-  "cpu": "1024",
-  "memory": "3072",
-  "taskRoleArn": "arn:aws:iam::431159034216:role/ecsTaskExecutionRole",
-  "executionRoleArn": "arn:aws:iam::431159034216:role/ecsTaskExecutionRole",
-  "containerDefinitions": [
-    {
-      "name": "job-post-container",
-      "image": "431159034216.dkr.ecr.us-east-1.amazonaws.com/job_post_api_1:latest", 
-      "portMappings": [
-        {
-          "name": "job-post-container-3001-tcp",
-          "containerPort": 3001,
-          "hostPort": 3001,
-          "protocol": "tcp",
-          "appProtocol": "http"
-        }
-      ],
-      "essential": true,
-      "logConfiguration": {
-        "logDriver": "awslogs",
-        "options": {
-          "awslogs-group": "/ecs/job-post-container",
-          "awslogs-region": "us-east-1",
-          "awslogs-stream-prefix": "ecs"
+    "family": "crypto-backend-ecs-task",
+    "networkMode": "awsvpc",
+    "requiresCompatibilities": [
+      "FARGATE"
+    ],
+    "cpu": "1024",
+    "memory": "3072",
+    "taskRoleArn": "arn:aws:iam::431159034216:role/ecsTaskExecutionRole",
+    "executionRoleArn": "arn:aws:iam::431159034216:role/ecsTaskExecutionRole",
+    "containerDefinitions": [
+      {
+        "name": "crypto-backend-container",
+        "image": "431159034216.dkr.ecr.us-east-1.amazonaws.com/crypto_backend_api_1:latest", 
+        "portMappings": [
+          {
+            "name": "crypto-backend-container-8000-tcp",
+            "containerPort": 8000,
+            "hostPort": 8000,
+            "protocol": "tcp",
+            "appProtocol": "http"
+          }
+        ],
+        "essential": true,
+        "logConfiguration": {
+          "logDriver": "awslogs",
+          "options": {
+            "awslogs-group": "/ecs/crypto-backend-container",
+            "awslogs-region": "us-east-1",
+            "awslogs-stream-prefix": "ecs"
+          }
         }
       }
-    }
-  ]
-}
+    ]
+  }

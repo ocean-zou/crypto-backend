@@ -5,7 +5,7 @@ variable "region"{
 variable "ecr_repository_name" {
     description="the name of the ECR repository."
     type=string
-    default="job_post_api_1"
+    default="crypto_backend_api_1"
 }
 variable "ecr_image_name" {
   description = "The name of the Docker image to push to the ECR repository."
@@ -49,14 +49,14 @@ variable "execution_role_arn" {
 }
 
 variable "container_name" {
-  default     = "job-post-container"
+  default     = "crypto-backend-container"
   description = "Name of container to create task definition with."
   type        = string
 }
 
 variable "container_port"{
   type    = number
-  default = 3001
+  default = 8000
 }
 
 variable "enable_awslogs" {
@@ -111,4 +111,3 @@ variable "enable_containerInsights" {
   description = "Allow containerInsights/cloudwatch logs."
   type        = string
 }
-

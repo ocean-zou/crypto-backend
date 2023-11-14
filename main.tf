@@ -4,24 +4,24 @@ provider "aws" {
 }
 
 #create an Amazon Elastic Container Registry (ECR) repository 
-resource "aws_ecr_repository" "job_post_api_1" {
-  name = var.ecr_repository_name
+resource "aws_ecr_repository" "crypto_backend_api_1" {
+  name          = var.ecr_repository_name
   force_delete=true
 }
 
 # Create your VPC
-resource "aws_vpc" "job_post_vpc" {
+resource "aws_vpc" "crypto_backend_vpc" {
   cidr_block = "10.0.0.0/16"
   enable_dns_support = true
   enable_dns_hostnames = true
   tags = {
-    Name = "jobPost"
+    Name = "cryptoBackend"
   }
 }
 
 # Create your subnets
 resource "aws_subnet" "public_subnet_1" {
-  vpc_id                  = aws_vpc.job_post_vpc.id
+  vpc_id                  = aws_vpc.crypto_backend_vpc.id
   cidr_block              = "10.0.1.0/24"
   availability_zone      = "us-east-1a"
   map_public_ip_on_launch = true
@@ -31,7 +31,7 @@ resource "aws_subnet" "public_subnet_1" {
 }
 
 resource "aws_subnet" "public_subnet_2" {
-  vpc_id                  = aws_vpc.job_post_vpc.id
+  vpc_id                  = aws_vpc.crypto_backend_vpc.id
   cidr_block              = "10.0.2.0/24"
   availability_zone      = "us-east-1b"
   map_public_ip_on_launch = true
@@ -41,7 +41,7 @@ resource "aws_subnet" "public_subnet_2" {
 }
 
 resource "aws_subnet" "private_subnet_1" {
-  vpc_id     = aws_vpc.job_post_vpc.id
+  vpc_id     = aws_vpc.crypto_backend_vpc.id
   cidr_block = "10.0.3.0/24"
   availability_zone = "us-east-1a"
   tags = {
@@ -50,7 +50,7 @@ resource "aws_subnet" "private_subnet_1" {
 }
 
 resource "aws_subnet" "private_subnet_2" {
-  vpc_id     = aws_vpc.job_post_vpc.id
+  vpc_id     = aws_vpc.crypto_backend_vpc.id
   cidr_block = "10.0.4.0/24"
   availability_zone = "us-east-1b"
   tags = {
@@ -60,16 +60,16 @@ resource "aws_subnet" "private_subnet_2" {
 
 # NAT Gateway, Internet Gateway, and route tables
 
-resource "aws_internet_gateway" "job_post_igw" {
-  vpc_id = aws_vpc.job_post_vpc.id
+resource "aws_internet_gateway" "crypto_backend_igw" {
+  vpc_id = aws_vpc.crypto_backend_vpc.id
 }
 
 resource "aws_route_table" "public_route_table" {
-  vpc_id = aws_vpc.job_post_vpc.id
+  vpc_id = aws_vpc.crypto_backend_vpc.id
 
   route {
     cidr_block = var.cidr_blocks_anywhere
-    gateway_id = aws_internet_gateway.job_post_igw.id
+    gateway_id = aws_internet_gateway.crypto_backend_igw.id
   }
 }
 
@@ -93,7 +93,7 @@ resource "aws_nat_gateway" "nat_gateway" {
 }
 
 resource "aws_route_table" "private_route_table" {
-  vpc_id = aws_vpc.job_post_vpc.id
+  vpc_id = aws_vpc.crypto_backend_vpc.id
 }
 
 resource "aws_route" "private_route" {
@@ -117,7 +117,7 @@ resource "aws_route_table_association" "private_subnet_association_2" {
 resource "aws_security_group" "alb_sg" {
   name        = "alb-security-group"
   description = "ALB Security Group"
-  vpc_id      = aws_vpc.job_post_vpc.id
+  vpc_id      = aws_vpc.crypto_backend_vpc.id
 
   ingress {
     from_port   = 80
@@ -142,7 +142,7 @@ resource "aws_security_group" "alb_sg" {
 }
 
 resource "aws_lb" "alb" {
-  name               = "job-post-alb"
+  name               = "crypto-backend-alb"
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.alb_sg.id]
@@ -165,15 +165,9 @@ resource "aws_lb_listener" "http_listener" {
   }
 }
 
-#create alb acm 
-resource "aws_acm_certificate" "my_certificate" {
-  domain_name       = "*.oceanzou.click"
-  validation_method = "DNS"
-  provider          = aws
-}
-
-locals {
-  domain_validation_options_list = tolist(aws_acm_certificate.my_certificate.domain_validation_options)
+# Reference an existing ACM certificate
+data "aws_acm_certificate" "existing_certificate" {
+  domain       = "*.oceanzou.click"
 }
 
 #add a record to point to alb
@@ -194,7 +188,7 @@ resource "aws_lb_listener" "https_listener" {
   port              = 443
   protocol          = "HTTPS"
   ssl_policy        = "ELBSecurityPolicy-2016-08"
-  certificate_arn   = aws_acm_certificate.my_certificate.arn
+  certificate_arn   = data.aws_acm_certificate.existing_certificate.arn
   
   default_action {
     type = "forward"
@@ -206,7 +200,7 @@ resource "aws_lb_listener" "https_listener" {
 
 resource "aws_lb_target_group" "alb_target_group" {
   name   = "alb-target-group"
-  vpc_id = aws_vpc.job_post_vpc.id
+  vpc_id = aws_vpc.crypto_backend_vpc.id
 
   port                 = 80
   protocol             = "HTTP"
@@ -227,10 +221,10 @@ resource "aws_lb_target_group" "alb_target_group" {
 }
 
 #ecs
-resource "aws_security_group" "job_post_ecs_sg" {
-  name        = "jobPostECSSG"
+resource "aws_security_group" "crypto_backend_ecs_sg" {
+  name        = "cryptoBackendECSSG"
   description = "Security group for ECS Fargate"
-  vpc_id      = aws_vpc.job_post_vpc.id
+  vpc_id      = aws_vpc.crypto_backend_vpc.id
 
   ingress {
     from_port   = 0
@@ -261,10 +255,67 @@ resource "aws_iam_role" "ecs_execution_role" {
       }
     }]
   })
+
+  inline_policy {
+    name = "CloudWatchLogsFullAccess"
+    policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+EOF
+  }
+
+  inline_policy {
+    name = "AmazonEC2ContainerRegistryReadOnly"
+    policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ecr:GetAuthorizationToken",
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:GetDownloadUrlForLayer",
+        "ecr:BatchGetImage"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+EOF
+  }
+
+  inline_policy {
+    name = "AmazonEC2ContainerRegistryPowerUser"
+    policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "ecr:*",
+      "Resource": "*"
+    }
+  ]
+}
+EOF
+  }
 }
 
 resource "aws_ecs_task_definition" "ecs_task" {
-  family                   = "job-post-ecs-task"
+  family                   = "crypto-backend-ecs-task"
   network_mode             = "awsvpc"
   requires_compatibilities = [var.ecs_launch_type]
   cpu                              = var.task_cpu
@@ -278,7 +329,7 @@ resource "aws_ecs_task_definition" "ecs_task" {
 
       portMappings = [
         {
-          name          = "jobpostecr-3001-tcp"
+          name          = "cryptobackendecr-8000-tcp"
           containerPort = var.container_port
           hostPort      = var.container_port
           protocol      = var.protocol
@@ -303,7 +354,7 @@ resource "aws_ecs_task_definition" "ecs_task" {
 }
 
 resource "aws_ecs_service" "ecs_service" {
-  name            = "job-post-ecs-service"
+  name            = "crypto-backend-ecs-service"
   cluster         = aws_ecs_cluster.ecs_cluster.id
   task_definition = aws_ecs_task_definition.ecs_task.arn
   launch_type     = var.ecs_launch_type
@@ -319,7 +370,7 @@ resource "aws_ecs_service" "ecs_service" {
 
   network_configuration {
     subnets = [aws_subnet.private_subnet_1.id, aws_subnet.private_subnet_2.id]
-    security_groups = [aws_security_group.job_post_ecs_sg.id]
+    security_groups = [aws_security_group.crypto_backend_ecs_sg.id]
     assign_public_ip = false
   }
 
@@ -335,7 +386,7 @@ resource "aws_ecs_service" "ecs_service" {
 }
 
 resource "aws_ecs_cluster" "ecs_cluster" {
-  name = "job-post-ecs-cluster"
+  name = "crypto-backend-ecs-cluster"
 
   setting {
       name  = "containerInsights"
