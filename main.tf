@@ -165,15 +165,9 @@ resource "aws_lb_listener" "http_listener" {
   }
 }
 
-#create alb acm 
-resource "aws_acm_certificate" "my_certificate" {
-  domain_name       = "*.oceanzou.click"
-  validation_method = "DNS"
-  provider          = aws
-}
-
-locals {
-  domain_validation_options_list = tolist(aws_acm_certificate.my_certificate.domain_validation_options)
+# Reference an existing ACM certificate
+data "aws_acm_certificate" "existing_certificate" {
+  domain       = "*.oceanzou.click"
 }
 
 #add a record to point to alb
@@ -194,7 +188,7 @@ resource "aws_lb_listener" "https_listener" {
   port              = 443
   protocol          = "HTTPS"
   ssl_policy        = "ELBSecurityPolicy-2016-08"
-  certificate_arn   = aws_acm_certificate.my_certificate.arn
+  certificate_arn   = data.aws_acm_certificate.existing_certificate.arn
   
   default_action {
     type = "forward"
